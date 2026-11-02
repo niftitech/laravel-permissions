@@ -32,6 +32,7 @@ Add package features in the right place and wire them through the service provid
 
 Provider wiring anti-patterns:
 
+- Calling `loadMigrationsFrom()` in the service provider for host apps when migrations are publish-only; load package migrations in tests via `tests/TestCase` instead.
 - Loading host app state too early during provider registration.
 - Calling `env()` outside config files; use config values after `mergeConfigFrom` instead.
 - Registering web-only concerns unconditionally when the package can run in console contexts.
@@ -52,7 +53,7 @@ Provider wiring anti-patterns:
 ## Examples
 
 - Add an Artisan command: create the command class under `src/Console/Commands`, register it in the `commands` array inside the `runningInConsole()` guard, add a feature test for observable console output, and document the command if it is user-facing.
-- Add a publishable migration: place the migration in `database/migrations`, wire it through a console-guarded `publishesMigrations` call with a `laravel-permissions-migrations` tag, and test publish behavior with Testbench.
+- Add a publishable migration: place the migration in `database/migrations`, wire it through a console-guarded `publishesMigrations` call (source => `database_path('migrations/'.basename($file))`) with tags `laravel-permissions-migrations` and `laravel-permissions`, and test publish behavior with Testbench. Do not register `loadMigrationsFrom()` in the service provider unless the package intentionally auto-loads migrations.
 - Wire a new publish tag by adding a `publishes` map inside the existing console-guarded publishing method and naming the tag with `laravel-permissions-*`.
 
 ## Anti-Patterns
