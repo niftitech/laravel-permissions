@@ -10,15 +10,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('laravel_permissions_placeholder', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('laravel_permissions_placeholder');
+        Schema::dropIfExists('users');
     }
 };

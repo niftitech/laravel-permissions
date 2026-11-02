@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 return [
 
-    'placeholder' => 'default',
+    'models' => [
+        'user' => App\Models\User::class,
+    ],
 
 ];
