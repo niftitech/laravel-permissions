@@ -20,6 +20,10 @@ trait HasPermissionAuthorization
         return $this->belongsToMany(PermissionRole::class, 'permission_role_user');
     }
 
+    /**
+     * @param  string|BackedEnum&UnitEnum  $entity  Entity slug, or string-backed enum case whose value is the slug
+     * @param  string|BackedEnum&UnitEnum  $action  Action slug, or string-backed enum case whose value is the slug
+     */
     public function hasPermissionTo(mixed $entity, mixed $action): bool
     {
         $entitySlug = $this->permissionSlug($entity, 'entity');
