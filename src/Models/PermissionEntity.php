@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace LaravelPermissions\LaravelPermissions\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
@@ -18,10 +17,12 @@ use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['slug', 'name'])]
 class PermissionEntity extends Model implements AuditableContract
 {
     use Auditable;
+
+    /** @var list<string> */
+    protected $fillable = ['slug', 'name'];
 
     /**
      * @return HasMany<PermissionRoleGrant, $this>

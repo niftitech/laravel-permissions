@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace LaravelPermissions\LaravelPermissions\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -21,10 +20,16 @@ use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['permission_role_id', 'permission_entity_id', 'permission_action_id'])]
 class PermissionRoleGrant extends Model implements AuditableContract
 {
     use Auditable;
+
+    /** @var list<string> */
+    protected $fillable = [
+        'permission_role_id',
+        'permission_entity_id',
+        'permission_action_id',
+    ];
 
     /**
      * @return BelongsTo<PermissionRole, $this>
