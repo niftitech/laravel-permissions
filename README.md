@@ -6,16 +6,28 @@ Permissions with an Entity → Action style.
 
 ```bash
 composer require niftitech/laravel-permissions
-php artisan migrate
 ```
 
-Publish configuration (optional):
+Publish the migration and config **before** running migrations so you can adjust schema or settings (for example JSON `name` columns):
+
+```bash
+php artisan vendor:publish --provider="LaravelPermissions\LaravelPermissions\LaravelPermissionsServiceProvider"
+```
+
+Or publish individually:
 
 ```bash
 php artisan vendor:publish --tag=laravel-permissions-config
+php artisan vendor:publish --tag=laravel-permissions-migrations
 ```
 
 Set `laravel-permissions.models.user` to your user model class if it is not `App\Models\User`.
+
+Then run migrations:
+
+```bash
+php artisan migrate
+```
 
 ## Usage
 
@@ -61,4 +73,4 @@ $user->hasPermissionTo('trial', 'view'); // true
 $user->hasPermissionTo(TrialEntity::Trial, TrialAction::View);
 ```
 
-Authorization uses **slugs only**; `name` is for display. Seed entities, actions, and roles from your app (enums, seeders, admin). For multi-locale labels, switch `name` to JSON in the package migration before the first migrate, or alter the column in your own migration, and handle translations in your application models.
+Authorization uses **slugs only**; `name` is for display. Seed entities, actions, and roles from your app (enums, seeders, admin). For multi-locale labels, switch `name` to JSON in the published migration before the first migrate, or alter the column in your own migration, and handle translations in your application models.
