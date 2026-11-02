@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LaravelPermissions\LaravelPermissions\Concerns;
 
 use BackedEnum;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use InvalidArgumentException;
 use LaravelPermissions\LaravelPermissions\Models\PermissionRole;
@@ -21,8 +22,8 @@ trait HasPermissionAuthorization
     }
 
     /**
-     * @param  string|BackedEnum&UnitEnum  $entity  Entity slug, or string-backed enum case whose value is the slug
-     * @param  string|BackedEnum&UnitEnum  $action  Action slug, or string-backed enum case whose value is the slug
+     * @param  string|(UnitEnum&BackedEnum)  $entity  Entity slug, or string-backed enum case whose value is the slug
+     * @param  string|(UnitEnum&BackedEnum)  $action  Action slug, or string-backed enum case whose value is the slug
      */
     public function hasPermissionTo(mixed $entity, mixed $action): bool
     {
@@ -30,9 +31,9 @@ trait HasPermissionAuthorization
         $actionSlug = $this->permissionSlug($action, 'action');
 
         return $this->permissionRoles()
-            ->whereHas('grants', function ($query) use ($entitySlug, $actionSlug): void {
-                $query->whereHas('permissionEntity', fn ($entityQuery) => $entityQuery->where('slug', $entitySlug))
-                    ->whereHas('permissionAction', fn ($actionQuery) => $actionQuery->where('slug', $actionSlug));
+            ->whereHas('grants', function (Builder $query) use ($entitySlug, $actionSlug): void {
+                $query->whereHas('permissionEntity', fn (Builder $entityQuery) => $entityQuery->where('slug', $entitySlug))
+                    ->whereHas('permissionAction', fn (Builder $actionQuery) => $actionQuery->where('slug', $actionSlug));
             })
             ->exists();
     }

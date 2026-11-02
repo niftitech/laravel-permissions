@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
 
     'models' => [
-        'user' => App\Models\User::class,
+        'user' => 'App\Models\User',
     ],
 
 ];
