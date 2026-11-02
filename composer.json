@@ -1,21 +1,26 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "daniel-eckerstr-m/laravel-permissions",
-    "description": "Permissions with a Entity -> Action style",
+    "name": "niftitech/laravel-permissions",
+    "description": "Permissions with an Entity → Action style",
     "keywords": [
         "laravel",
-        "daniel-eckerstr-m",
-        "laravel-permissions"
+        "niftitech",
+        "laravel-permissions",
+        "permissions",
+        "authorization"
     ],
-    "homepage": "https://github.com/daniel-eckerstr-m/laravel-permissions",
+    "homepage": "https://github.com/niftitech/laravel-permissions",
     "license": "MIT",
     "authors": [
         {
-            "name": "Daniel Eckerstr\u00f6m",
-            "email": "daniel.eckerstrom@niftitech.com",
-            "role": "Developer"
+            "name": "Niftitech",
+            "homepage": "https://github.com/niftitech"
         }
     ],
+    "support": {
+        "issues": "https://github.com/niftitech/laravel-permissions/issues",
+        "source": "https://github.com/niftitech/laravel-permissions"
+    },
     "require": {
         "php": "^8.3",
         "illuminate/database": "^12.0||^13.0",

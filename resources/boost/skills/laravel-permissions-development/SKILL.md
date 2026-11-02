@@ -13,7 +13,7 @@ Use this skill when a Laravel application needs to integrate the Laravel Permiss
 
 ## Primary Goal
 
-- apply the `daniel-eckerstr-m/laravel-permissions` package's public API in the smallest correct way
+- apply the `niftitech/laravel-permissions` package's public API in the smallest correct way
 
 ## Workflow
 

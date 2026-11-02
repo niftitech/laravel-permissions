@@ -5,7 +5,7 @@ Permissions with an Entity → Action style.
 ## Installation
 
 ```bash
-composer require daniel-eckerstr-m/laravel-permissions
+composer require niftitech/laravel-permissions
 php artisan migrate
 ```
 
