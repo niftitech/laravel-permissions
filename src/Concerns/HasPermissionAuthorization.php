@@ -8,6 +8,8 @@ use BackedEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
+use LaravelPermissions\LaravelPermissions\PermissionCache;
 use LaravelPermissions\LaravelPermissions\PermissionModels;
 use UnitEnum;
 
@@ -33,6 +35,10 @@ trait HasPermissionAuthorization
         $entitySlug = $this->permissionSlug($entity, 'entity');
         $actionSlug = $this->permissionSlug($action, 'action');
 
+        if (PermissionCache::enabled()) {
+            return $this->hasCachedPermission($entitySlug, $actionSlug);
+        }
+
         return $this->permissionRoles()
             ->whereHas('grants', function (Builder $query) use ($entitySlug, $actionSlug): void {
                 $query->whereHas('permissionEntity', fn (Builder $entityQuery) => $entityQuery->where('slug', $entitySlug))
@@ -50,6 +56,8 @@ trait HasPermissionAuthorization
     {
         // Not attach(): attaching a role the user already has violates the pivot's primary key.
         $this->permissionRoles()->syncWithoutDetaching([$this->resolvePermissionRole($role)->getKey()]);
+
+        PermissionCache::forgetUser($this->getKey());
     }
 
     /**
@@ -58,6 +66,8 @@ trait HasPermissionAuthorization
     public function removeRole(mixed $role): void
     {
         $this->permissionRoles()->detach($this->resolvePermissionRole($role));
+
+        PermissionCache::forgetUser($this->getKey());
     }
 
     /**
@@ -72,10 +82,51 @@ trait HasPermissionAuthorization
             ->all();
 
         $this->permissionRoles()->sync($roleIds);
+
+        PermissionCache::forgetUser($this->getKey());
     }
 
     private function resolvePermissionRole(mixed $role): Model
     {
         return $this->resolvePermissionModel(PermissionModels::classFor('role'), $role, 'role');
+    }
+
+    /**
+     * Same answer as the query in hasPermissionTo(), read from the cache: the user's role ids,
+     * then each role's grants.
+     */
+    private function hasCachedPermission(string $entitySlug, string $actionSlug): bool
+    {
+        $roleIds = PermissionCache::rememberUserRoleIds(
+            $this->getKey(),
+            fn (): array => $this->permissionRoles()->pluck('id')->all(),
+        );
+
+        foreach ($roleIds as $roleId) {
+            $actionSlugsByEntity = PermissionCache::rememberRoleGrants(
+                $roleId,
+                fn (): array => $this->loadRoleGrantsByEntity($roleId),
+            );
+
+            if (in_array($actionSlug, $actionSlugsByEntity[$entitySlug] ?? [], true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array<array-key, array<int, mixed>> Action slugs keyed by entity slug
+     */
+    private function loadRoleGrantsByEntity(mixed $roleId): array
+    {
+        return PermissionModels::classFor('grant')::query()
+            ->where('permission_role_id', $roleId)
+            ->with(['permissionEntity', 'permissionAction'])
+            ->get()
+            ->groupBy('permissionEntity.slug')
+            ->map(fn (Collection $grants): array => $grants->pluck('permissionAction.slug')->values()->all())
+            ->all();
     }
 }

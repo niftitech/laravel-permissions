@@ -51,6 +51,7 @@ In `config/laravel-permissions.php` (or merged defaults before publish), set:
 
 - `models.user` — FQCN of the authenticatable user model (default `App\Models\User`)
 - `models.role`, `models.entity`, `models.action`, `models.grant` — FQCNs of the package models; point them at app subclasses to add traits such as translations or auditing
+- `cache.enabled` — `true` caches `hasPermissionTo()` lookups; only the helper methods keep the cache current. Clear with `php artisan permissions:clear-cache`
 
 Then migrate:
 

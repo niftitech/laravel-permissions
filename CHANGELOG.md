@@ -5,6 +5,7 @@
 ### Added
 
 - `assignRole`, `removeRole`, and `syncRoles` on users, and `grant`, `revoke`, and `syncGrants` on roles.
+- Optional cache for `hasPermissionTo()`, off by default. Enable it with `laravel-permissions.cache.enabled`. The helpers above keep it current. Clear it with `php artisan permissions:clear-cache` or `php artisan cache:clear`.
 
 ### Changed
 

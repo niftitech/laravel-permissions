@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LaravelPermissions\LaravelPermissions;
 
 use Illuminate\Support\ServiceProvider;
+use LaravelPermissions\LaravelPermissions\Console\Commands\ClearPermissionCacheCommand;
 
 class LaravelPermissionsServiceProvider extends ServiceProvider
 {
@@ -18,6 +19,10 @@ class LaravelPermissionsServiceProvider extends ServiceProvider
         if (! $this->app->runningInConsole()) {
             return;
         }
+
+        $this->commands([
+            ClearPermissionCacheCommand::class,
+        ]);
 
         $this->publishes([
             __DIR__.'/../config/laravel-permissions.php' => config_path('laravel-permissions.php'),

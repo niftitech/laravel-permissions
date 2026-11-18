@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use LaravelPermissions\LaravelPermissions\Concerns\ResolvesPermissionModels;
+use LaravelPermissions\LaravelPermissions\PermissionCache;
 use LaravelPermissions\LaravelPermissions\PermissionModels;
 
 /**
@@ -53,6 +54,8 @@ class PermissionRole extends Model
     public function grant(mixed $entity, mixed $action): void
     {
         $this->grants()->firstOrCreate($this->grantAttributes($entity, $action));
+
+        PermissionCache::forgetRole($this->getKey());
     }
 
     /**
@@ -62,6 +65,8 @@ class PermissionRole extends Model
     public function revoke(mixed $entity, mixed $action): void
     {
         $this->grants()->where($this->grantAttributes($entity, $action))->delete();
+
+        PermissionCache::forgetRole($this->getKey());
     }
 
     /**
@@ -79,6 +84,9 @@ class PermissionRole extends Model
                 $this->grant($entity, $action);
             }
         });
+
+        // Forget again after commit: a read during the transaction could cache the old grants.
+        PermissionCache::forgetRole($this->getKey());
     }
 
     /**

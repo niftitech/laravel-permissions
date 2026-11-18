@@ -26,6 +26,7 @@ abstract class TestCase extends Orchestra
         // Set after the provider boots: defineEnvironment() runs earlier, and the provider's
         // shallow mergeConfigFrom() would then replace the whole `models` array with this one key.
         config()->set('laravel-permissions.models.user', User::class);
+        config()->set('cache.default', 'array');
     }
 
     protected function defineDatabaseMigrations(): void

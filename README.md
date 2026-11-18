@@ -90,4 +90,14 @@ $role->syncGrants([                   // replace all grants with these pairs
 ]);
 ```
 
+### Caching
+
+Set `laravel-permissions.cache.enabled` to `true` to cache the lookups behind `hasPermissionTo()` in your default cache store. The helpers `assignRole()`, `removeRole()`, `syncRoles()`, `grant()`, `revoke()`, and `syncGrants()` refresh the cache when they change data. Direct writes such as `auditSync()`, `PermissionRoleGrant::create()`, or deleting a role model do not, so clear the cache after using them:
+
+```bash
+php artisan permissions:clear-cache
+```
+
+`php artisan cache:clear` also works.
+
 Authorization uses **slugs only**; `name` is for display. Seed entities, actions, and roles from your app (enums, seeders, admin). For multi-locale labels, switch `name` to JSON in the published migration before the first migrate, or alter the column in your own migration, and handle translations in your application models.

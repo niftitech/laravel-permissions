@@ -17,4 +17,10 @@ return [
         'action' => PermissionAction::class,
         'grant' => PermissionRoleGrant::class,
     ],
+
+    // Caches role and grant lookups for hasPermissionTo(). Only the helpers (assignRole, removeRole,
+    // syncRoles, grant, revoke, syncGrants) keep it current; direct model or pivot writes do not.
+    'cache' => [
+        'enabled' => false,
+    ],
 ];
