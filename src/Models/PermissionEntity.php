@@ -7,8 +7,7 @@ namespace LaravelPermissions\LaravelPermissions\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use OwenIt\Auditing\Auditable;
-use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use LaravelPermissions\LaravelPermissions\PermissionModels;
 
 /**
  * @property int $id
@@ -17,18 +16,16 @@ use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-class PermissionEntity extends Model implements AuditableContract
+class PermissionEntity extends Model
 {
-    use Auditable;
-
     /** @var list<string> */
     protected $fillable = ['slug', 'name'];
 
     /**
-     * @return HasMany<PermissionRoleGrant, $this>
+     * @return HasMany<Model, $this>
      */
     public function permissionRoleGrants(): HasMany
     {
-        return $this->hasMany(PermissionRoleGrant::class);
+        return $this->hasMany(PermissionModels::classFor('grant'));
     }
 }

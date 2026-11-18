@@ -7,8 +7,7 @@ namespace LaravelPermissions\LaravelPermissions\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use OwenIt\Auditing\Auditable;
-use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use LaravelPermissions\LaravelPermissions\PermissionModels;
 
 /**
  * Entity + action pair granted to a role (no separate permissions table).
@@ -20,10 +19,8 @@ use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-class PermissionRoleGrant extends Model implements AuditableContract
+class PermissionRoleGrant extends Model
 {
-    use Auditable;
-
     /** @var list<string> */
     protected $fillable = [
         'permission_role_id',
@@ -32,26 +29,26 @@ class PermissionRoleGrant extends Model implements AuditableContract
     ];
 
     /**
-     * @return BelongsTo<PermissionRole, $this>
+     * @return BelongsTo<Model, $this>
      */
     public function permissionRole(): BelongsTo
     {
-        return $this->belongsTo(PermissionRole::class);
+        return $this->belongsTo(PermissionModels::classFor('role'));
     }
 
     /**
-     * @return BelongsTo<PermissionEntity, $this>
+     * @return BelongsTo<Model, $this>
      */
     public function permissionEntity(): BelongsTo
     {
-        return $this->belongsTo(PermissionEntity::class);
+        return $this->belongsTo(PermissionModels::classFor('entity'));
     }
 
     /**
-     * @return BelongsTo<PermissionAction, $this>
+     * @return BelongsTo<Model, $this>
      */
     public function permissionAction(): BelongsTo
     {
-        return $this->belongsTo(PermissionAction::class);
+        return $this->belongsTo(PermissionModels::classFor('action'));
     }
 }

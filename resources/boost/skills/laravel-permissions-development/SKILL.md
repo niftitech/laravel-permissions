@@ -50,6 +50,7 @@ Package migrations are **not** auto-loaded from vendor; the app must publish (or
 In `config/laravel-permissions.php` (or merged defaults before publish), set:
 
 - `models.user` — FQCN of the authenticatable user model (default `App\Models\User`)
+- `models.role`, `models.entity`, `models.action`, `models.grant` — FQCNs of the package models; point them at app subclasses to add traits such as translations or auditing
 
 Then migrate:
 
@@ -85,10 +86,12 @@ Seed entities, actions, roles, and grants from app seeders, enums, or admin UI.
 ### 5. Assign roles and check access
 
 ```php
-$user->permissionRoles()->attach($role);
+$user->assignRole($role); // or 'editor', or a string-backed enum case
 
 $user->hasPermissionTo('trial', 'view'); // true when a grant exists on any of the user's roles
 ```
+
+Use `assignRole`, `removeRole`, `syncRoles` on the user and `grant`, `revoke`, `syncGrants` on a `PermissionRole` instead of raw `attach`, `detach`, or `PermissionRoleGrant::create`. They accept a model, slug, or string-backed enum case.
 
 `hasPermissionTo` accepts string slugs or **string-backed enum cases** (case `value` is the slug).
 
@@ -97,7 +100,8 @@ $user->hasPermissionTo('trial', 'view'); // true when a grant exists on any of t
 - Package README: install order and usage examples
 - Config key prefix: `laravel-permissions.*`
 - Public models: `PermissionEntity`, `PermissionAction`, `PermissionRole`, `PermissionRoleGrant`
-- User API: `permissionRoles()`, `hasPermissionTo($entity, $action)`
+- User API: `permissionRoles()`, `assignRole()`, `removeRole()`, `syncRoles()`, `hasPermissionTo($entity, $action)`
+- Role API: `grant()`, `revoke()`, `syncGrants()`
 
 ## Examples
 

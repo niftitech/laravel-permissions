@@ -6,19 +6,22 @@ namespace LaravelPermissions\LaravelPermissions\Concerns;
 
 use BackedEnum;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use InvalidArgumentException;
-use LaravelPermissions\LaravelPermissions\Models\PermissionRole;
+use LaravelPermissions\LaravelPermissions\PermissionModels;
 use UnitEnum;
 
 trait HasPermissionAuthorization
 {
+    use ResolvesPermissionModels;
+
     /**
-     * @return BelongsToMany<PermissionRole, $this>
+     * @return BelongsToMany<Model, $this>
      */
     public function permissionRoles(): BelongsToMany
     {
-        return $this->belongsToMany(PermissionRole::class, 'permission_role_user');
+        // Pivot keys are explicit: Laravel would otherwise derive them from the role class's basename.
+        return $this->belongsToMany(PermissionModels::classFor('role'), 'permission_role_user', 'user_id', 'permission_role_id');
     }
 
     /**
@@ -38,26 +41,41 @@ trait HasPermissionAuthorization
             ->exists();
     }
 
-    private function permissionSlug(mixed $value, string $argument): string
+    /**
+     * Adds a role and keeps the user's other roles. Adding a role the user already has does nothing.
+     *
+     * @param  mixed  $role  PermissionRole, role slug, or string-backed enum case whose value is the slug
+     */
+    public function assignRole(mixed $role): void
     {
-        if (is_string($value)) {
-            return $value;
-        }
+        // Not attach(): attaching a role the user already has violates the pivot's primary key.
+        $this->permissionRoles()->syncWithoutDetaching([$this->resolvePermissionRole($role)->getKey()]);
+    }
 
-        if ($value instanceof UnitEnum) {
-            if (! $value instanceof BackedEnum || ! is_string($value->value)) {
-                throw new InvalidArgumentException(sprintf(
-                    'The %s argument must be a string or a string-backed enum case.',
-                    $argument,
-                ));
-            }
+    /**
+     * @param  mixed  $role  PermissionRole, role slug, or string-backed enum case whose value is the slug
+     */
+    public function removeRole(mixed $role): void
+    {
+        $this->permissionRoles()->detach($this->resolvePermissionRole($role));
+    }
 
-            return $value->value;
-        }
+    /**
+     * Replaces the user's roles with the given set.
+     *
+     * @param  iterable<int, mixed>  $roles  Each item is a PermissionRole, role slug, or string-backed enum case whose value is the slug
+     */
+    public function syncRoles(iterable $roles): void
+    {
+        $roleIds = collect($roles)
+            ->map(fn (mixed $role): mixed => $this->resolvePermissionRole($role)->getKey())
+            ->all();
 
-        throw new InvalidArgumentException(sprintf(
-            'The %1$s argument must be a string or a string-backed enum case.',
-            $argument,
-        ));
+        $this->permissionRoles()->sync($roleIds);
+    }
+
+    private function resolvePermissionRole(mixed $role): Model
+    {
+        return $this->resolvePermissionModel(PermissionModels::classFor('role'), $role, 'role');
     }
 }
